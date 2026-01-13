@@ -127,11 +127,12 @@ class OrderController extends Controller
             $orderId = $orders->pluck('id');
             $orderItems = OrderItem::whereIn('order_id', $orderId)->get();
             $data = [];
-            $data['orders'] = $orders;
-            $data['order_items'] = $orderItems;
+            // $data['orders'] = $orders;
+            // $data['order_items'] = $orderItems;
             return response()->json([
                 'status' => true,
-                'data' => $data,
+                'orders' => $orders,
+                'orderItems' => $orderItems,
             ]);
 
         } catch (\Exception $e) {

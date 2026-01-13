@@ -54,10 +54,10 @@ class WishlistController extends Controller
                     ], 403);
                  }
             $wishlists = Wishlist::where('user_id', $user->id)->join('products', 'products.id', '=', 'wishlists.product_id')->get();
-            $data['wishlists'] = $wishlists;
+            // $data['wishlists'] = $wishlists;
             return response()->json([
                 'status' => true,
-                'data' => $data,
+                'wishlists' => $wishlists,
             ]);
         } catch (Exception $e){
             return response()->json([

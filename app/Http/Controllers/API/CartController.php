@@ -44,8 +44,8 @@ class CartController extends Controller
     {
         try {
                 $validated = $request->validate([
-                    'product_id' => 'required|string',
-                    'quantity' => 'required|string',
+                    'product_id' => 'required|integer|exists:products,id',
+                    'quantity' => 'required|integer|min:1',
                 ]);
                 $user = auth()->user();
                  if(($user->role == 'admin') || ($user->role == 'seller')){
@@ -120,25 +120,35 @@ class CartController extends Controller
 
     public function remove(Request $request)
     {
-        $cart_id = $request->cart_id;
         try {
                 $user = auth()->user();
+           $validatedData = $request->validate([
+                'product_id' => 'required|integer|exists:products,id'
+            ]);                
                  if(($user->role == 'admin') || ($user->role == 'seller')){
                     return response()->json([
                         'status' => false,
                         'message' => 'This action is not allowed for admin or seller users',
                     ], 403);
                  }
-                 $cart = Cart::find($cart_id);
-                 $user_id = $user->id;
+                
+                 $cart = Cart::where('product_id', $validatedData)->where('user_id', $user->id)->first();
 
-                 if($cart->user_id != $user_id){
+                 if($cart->user_id != $user->id){
                     return response()->json([
                         'status' => false,
                         'message' => 'You are not authorized to delete this item',
                     ], 403);
                  }
-                Cart::where('id', $cart_id)->delete();
+                // Cart::where('id', $cart_id)->delete();
+
+            if(!$cart){
+                return response()->json([
+                    'status' => false,
+                    'message' => 'Cart item not found',
+                ], 404);
+            }
+            $cart->delete();                
                 return response()->json([
                     'status' => true,
                     'message' => 'Item has been removed from cart',
